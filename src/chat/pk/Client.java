@@ -49,6 +49,7 @@ public class Client {
     }
     
     public void sendToServer(String message){
+        
         byte[] buf = new byte[1024];
         
         buf = message.getBytes();

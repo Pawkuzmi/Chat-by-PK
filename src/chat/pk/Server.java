@@ -3,7 +3,9 @@ package chat.pk;
 import java.io.IOException;
 import java.net.DatagramPacket;
 import java.net.DatagramSocket;
+import java.net.InetAddress;
 import java.net.SocketException;
+import java.net.UnknownHostException;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.logging.Level;
@@ -18,7 +20,7 @@ public class Server {
     private final int port = 54381;
     private Thread receiveThread;
     
-    private List<ClientOnServer> clients;
+    private ArrayList<ClientOnServer> clients;
     
     public Server(){
         clients = new ArrayList<>();
@@ -38,6 +40,11 @@ public class Server {
 
     private void initialize() {
         this.startReceiving();
+        try {
+            System.out.println(InetAddress.getLocalHost());
+        } catch (UnknownHostException ex) {
+            Logger.getLogger(Server.class.getName()).log(Level.SEVERE, null, ex);
+        }
     }
 
     private void startReceiving() {
@@ -75,8 +82,19 @@ public class Server {
         }
         else if(message.startsWith("/m/")){  //My protocol - /m/ means normal Message
             sendToEveryClient(message.substring(3));
+        }
+        else if(message.startsWith("/e/")){  //My protocol - /e/ means closed chat window
+            String name = message.substring(3).trim();
+            
+            removeClientFromServer(name);
+            clients.trimToSize();
+            
+            String newMessageToSend = name + " left conversation.";
+            sendToEveryClient(newMessageToSend.toUpperCase());
             
         }
+        
+        System.out.println("liczba osób " + clients.size());
     }    
 
  /*   private void sendToEveryClient(byte[] buf) {
@@ -104,5 +122,15 @@ public class Server {
                 ex.printStackTrace();
             }
         }
+    }
+
+    private void removeClientFromServer(String name) {
+        if(clients.size() > 1){
+            for(ClientOnServer client : clients){
+                if(client.getName().equals(name))
+                    clients.remove(client);
+            }
+        }
+        else clients.clear();
     }
 }

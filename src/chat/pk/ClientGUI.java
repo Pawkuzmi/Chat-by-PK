@@ -10,6 +10,7 @@ import java.net.InetAddress;
 import java.net.UnknownHostException;
 import java.util.logging.Level;
 import java.util.logging.Logger;
+import javax.swing.text.DefaultCaret;
 
 /**
  *
@@ -21,9 +22,17 @@ public class ClientGUI extends javax.swing.JFrame {
     
     public ClientGUI(Client c) {
         initComponents();
+        
+        mainTextArea.setEditable(false);
+        caret = (DefaultCaret) mainTextArea.getCaret();
+        caret.setUpdatePolicy(DefaultCaret.ALWAYS_UPDATE);
+        messageTextField.requestFocus();
+        
         this.client = c;
         c.setGui(this);
         c.initializeConnection();
+        
+        this.setTitle("Chat PK " + client.getName());
     }
 
     public void setClient(Client client) {
@@ -50,8 +59,17 @@ public class ClientGUI extends javax.swing.JFrame {
         setTitle("Chat PK");
         setLocation(new java.awt.Point(500, 250));
         setMinimumSize(new java.awt.Dimension(400, 300));
+        addWindowListener(new java.awt.event.WindowAdapter() {
+            public void windowClosing(java.awt.event.WindowEvent evt) {
+                formWindowClosing(evt);
+            }
+        });
 
+        jScrollPane1.setHorizontalScrollBarPolicy(javax.swing.ScrollPaneConstants.HORIZONTAL_SCROLLBAR_NEVER);
+
+        mainTextArea.setBackground(new java.awt.Color(178, 230, 225));
         mainTextArea.setColumns(20);
+        mainTextArea.setLineWrap(true);
         mainTextArea.setRows(5);
         jScrollPane1.setViewportView(mainTextArea);
 
@@ -59,6 +77,7 @@ public class ClientGUI extends javax.swing.JFrame {
 
         southPanel.setLayout(new javax.swing.BoxLayout(southPanel, javax.swing.BoxLayout.LINE_AXIS));
 
+        messageTextField.setBackground(new java.awt.Color(155, 211, 234));
         messageTextField.addKeyListener(new java.awt.event.KeyAdapter() {
             public void keyPressed(java.awt.event.KeyEvent evt) {
                 messageTextFieldKeyPressed(evt);
@@ -80,23 +99,38 @@ public class ClientGUI extends javax.swing.JFrame {
     }// </editor-fold>//GEN-END:initComponents
 
     private void sendButtonActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_sendButtonActionPerformed
-        send();
+        String message ="/m/" + client.getName()+ " - " + messageTextField.getText();
+        send(message);
     }//GEN-LAST:event_sendButtonActionPerformed
 
     private void messageTextFieldKeyPressed(java.awt.event.KeyEvent evt) {//GEN-FIRST:event_messageTextFieldKeyPressed
+        String message ="/m/" + client.getName()+ " - " + messageTextField.getText();
         if(evt.getKeyCode() == KeyEvent.VK_ENTER)
-            send();
+            send(message);
     }//GEN-LAST:event_messageTextFieldKeyPressed
 
-   public void send(){
-       String message ="/m/" + client.getName()+ " - " + messageTextField.getText();
+    private void formWindowClosing(java.awt.event.WindowEvent evt) {//GEN-FIRST:event_formWindowClosing
+        String message ="/e/" + client.getName();
         client.sendToServer(message);
-        
+    }//GEN-LAST:event_formWindowClosing
+
+    
+    
+   public void send(String message){
+        if(messageTextField.getText().equals(""))
+            return;
+       
+      //  String message ="/m/" + client.getName()+ " - " + messageTextField.getText();
+        client.sendToServer(message);
+       
         messageTextField.setText("");
+        messageTextField.requestFocus();
     }
    
    public void showInMainTextArea(String message){
        mainTextArea.append(message + "\n\n");
+       mainTextArea.setCaretPosition(mainTextArea.getDocument().getLength());
+
    }
 
     // Variables declaration - do not modify//GEN-BEGIN:variables
@@ -106,4 +140,5 @@ public class ClientGUI extends javax.swing.JFrame {
     private javax.swing.JButton sendButton;
     private javax.swing.JPanel southPanel;
     // End of variables declaration//GEN-END:variables
+    private DefaultCaret caret;
 }

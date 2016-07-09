@@ -5,6 +5,8 @@
  */
 package chat.pk;
 
+import java.awt.event.ActionEvent;
+import java.awt.event.KeyEvent;
 import java.net.InetAddress;
 import java.net.UnknownHostException;
 import java.util.logging.Level;
@@ -45,6 +47,12 @@ public class LoginGUI extends javax.swing.JFrame {
         setResizable(false);
 
         jLabel1.setText("  Nickname");
+
+        ipTextField.addKeyListener(new java.awt.event.KeyAdapter() {
+            public void keyPressed(java.awt.event.KeyEvent evt) {
+                ipTextFieldKeyPressed(evt);
+            }
+        });
 
         jLabel2.setText("  server IP");
 
@@ -89,6 +97,15 @@ public class LoginGUI extends javax.swing.JFrame {
     }// </editor-fold>//GEN-END:initComponents
 
     private void loginButtonActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_loginButtonActionPerformed
+        logIntoChat();
+    }//GEN-LAST:event_loginButtonActionPerformed
+
+    private void ipTextFieldKeyPressed(java.awt.event.KeyEvent evt) {//GEN-FIRST:event_ipTextFieldKeyPressed
+        if(evt.getKeyCode() == KeyEvent.VK_ENTER)
+            logIntoChat();
+    }//GEN-LAST:event_ipTextFieldKeyPressed
+
+    private void logIntoChat(){
         String name = nicknameTextField.getText().toUpperCase();
         String ip = ipTextField.getText();
         
@@ -103,8 +120,8 @@ public class LoginGUI extends javax.swing.JFrame {
         }
         
         dispose();
-    }//GEN-LAST:event_loginButtonActionPerformed
-
+    }
+    
     /**
      * @param args the command line arguments
      */
